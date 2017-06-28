@@ -35,6 +35,7 @@
 * Only runs linux apps
 * No overhead to isolate another OS
 * App vs Computer
+* Faster start of another container
 
 ---
 
@@ -67,7 +68,7 @@ This runs `echo Hello World` on a bash shell on Debian Jessie image. Can you cha
 
 ## Running an nginx server with static content I
 
-`docker run --name some-nginx -v /Users/joao/Sites:/usr/share/nginx/html:ro -d nginx`
+`docker run --rm --name some-nginx -v /Users/joao/Sites:/usr/share/nginx/html:ro -d nginx`
 
 See if it's running with `docker ps`:
 
@@ -98,7 +99,7 @@ Stop it with `docker stop <id>`.
 
 ## Running an nginx server with static content III
 
-`docker run --name some-nginx -v /Users/joao/Sites:/usr/share/nginx/html:ro -d -p 8080:80 nginx`
+`docker run --rm --name some-nginx -v /Users/joao/Sites:/usr/share/nginx/html:ro -d -p 8080:80 nginx`
 
 Try to access with http://localhost:8080/ .
 
@@ -181,7 +182,7 @@ Note the images being built in layers!
 
 # Run the container
 
-`docker run -p 4000:80 tutorialsite`
+`docker run --rm -p 4000:80 tutorialsite`
 
 Now go to http://localhost:4000/
 
@@ -220,16 +221,47 @@ web:
    - .:/usr/share/nginx/html
   ports:
    - "4000:80"
-  command: command: ['/usr/sbin/nginx', '-g', 'daemon off;']
+  command: ['/usr/sbin/nginx', '-g', 'daemon off;']
 ```
 
 Run:
 
-`docker-compose -f tutorial.cfg up -d`
+`docker-compose -f tutorial1.cfg up -d`
 
 and check if it's working and respoding at http://localhost:4000/
 
-`docker-compose -f tutorial.cfg down`
+`docker-compose -f tutorial1.cfg down`
+
+to cleanup
+
+---
+
+# Or for multiple services
+
+```
+web:
+  image: nginx
+  volumes:
+   - .:/usr/share/nginx/html
+  ports:
+   - "4000:80"
+  command: ['/usr/sbin/nginx', '-g', 'daemon off;']
+web1:
+  image: nginx
+  volumes:
+   - .:/usr/share/nginx/html
+  ports:
+   - "4004:80"
+  command: ['/usr/sbin/nginx', '-g', 'daemon off;']
+```
+
+Run:
+
+`docker-compose -f tutorial2.cfg up -d`
+
+and check if it's working and respoding at http://localhost:4000/ and http://localhost:4004/
+
+`docker-compose -f tutorial2.cfg down`
 
 to cleanup
 
@@ -243,6 +275,6 @@ Docker Hub: https://hub.docker.com/ (the default registry)
 
 ---
 
-# That's all folks!
+# That's all folks!
 
-## Questions? Comments?
+## Questions? Comments?
